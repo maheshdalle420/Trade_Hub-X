@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property[1] }} - Bids</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .bids-table th, .bids-table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>{{ property[1] }} - Bids</h2>
+        <p><strong>Description:</strong> {{ property[2] }}</p>
+        <p><strong>Starting Price:</strong> ${{ property[3] }}</p>
+
+        <h3>Place Your Bid</h3>
+        <form action="" method="POST" class="mb-4">
+            <div class="mb-3">
+                <label for="bid_amount" class="form-label">Bid Amount</label>
+                <input type="number" step="0.01" name="bid_amount" id="bid_amount" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Place Bid</button>
+        </form>
+
+        <h3>Bid History</h3>
+        {% if bids %}
+        <table class="table table-bordered bids-table">
+            <thead>
+                <tr>
+                    <th>Bid Amount</th>
+                    <th>Bidder</th>
+                    <th>Bid Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bid in bids %}
+                <tr>
+                    <td>${{ bid[0] }}</td>
+                    <td>{{ bid[2] }}</td>
+                    <td>{{ bid[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No bids have been placed yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

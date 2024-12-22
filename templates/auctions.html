@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Auctions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #e0f7fa, #e1bee7);
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .section-title {
+            margin-top: 40px;
+            text-align: center;
+            color: #673ab7;
+            border-bottom: 3px solid #673ab7;
+            display: inline-block;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 2px solid #ddd;
+        }
+        .card-body {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+        .btn-primary {
+            background-color: #673ab7;
+            border-color: #673ab7;
+        }
+        .btn-primary:hover {
+            background-color: #5e35b1;
+            border-color: #5e35b1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="text-center">Property Auctions</h1>
+        </header>
+
+        <!-- Live Auctions -->
+        <h2>Live Auctions</h2>
+        {% if live_auctions %}
+            <div class="row">
+                {% for auction in live_auctions %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="/static/uploads/{{ auction.image_url }}" alt="Property Image">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">{{ auction.name }}</h5>
+                                <p class="card-text">{{ auction.description }}</p>
+                                <p><strong>Starting Price:</strong> ${{ auction.starting_price }}</p>
+                                <a href="/property/{{ auction.id }}/bids" class="btn btn-primary">Place Bid</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No live auctions available.</p>
+        {% endif %}
+
+        <!-- Upcoming Auctions -->
+        <h2>Upcoming Auctions</h2>
+        {% if upcoming_auctions %}
+            <div class="row">
+                {% for auction in upcoming_auctions %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="/static/uploads/{{ auction.image_url }}" alt="Property Image">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">{{ auction.name }}</h5>
+                                <p class="card-text">{{ auction.description }}</p>
+                                <p><strong>Starts:</strong> {{ auction.starting_date }} {{ auction.starting_time }}</p>
+                                <a href="/property/{{ auction.id }}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No upcoming auctions available.</p>
+        {% endif %}
+
+        <!-- Past Auctions -->
+        <h2>Past Auctions</h2>
+        {% if past_auctions %}
+            <div class="row">
+                {% for auction in past_auctions %}
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="/static/uploads/{{ auction.image_url }}" alt="Property Image">
+                            <div class="card-body">
+                                <h5 class="card-title text-danger">{{ auction.name }}</h5>
+                                <p class="card-text">{{ auction.description }}</p>
+                                <p><strong>Ended:</strong> {{ auction.ending_date }} {{ auction.ending_time }}</p>
+                                <a href="/property/{{ auction.id }}" class="btn btn-primary">View Details</a>
+                            </div>
+                       
