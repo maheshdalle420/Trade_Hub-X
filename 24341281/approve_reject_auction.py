@@ -33,8 +33,6 @@ migrate = Migrate(app, db)
 
 
 
-
-
 # User Model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,7 +56,6 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 
-
 # Property Model
 class Property(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,16 +72,8 @@ class Property(db.Model):
 
     def __repr__(self):
         return f'<Property {self.title}>'
-    
-    
-# Admin Panel Route
-@app.route('/admin/panel')
-def admin_panel():
-    if not session.get('admin_logged_in'):
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('login'))
-    pending_properties = Property.query.filter_by(approved=False).all()
-    return render_template('admin_panel.html', properties=pending_properties)
+
+
 
 
 # Approve/Reject Auction Route
