@@ -33,6 +33,8 @@ migrate = Migrate(app, db)
 
 
 
+
+
 # User Model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,6 +56,35 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+
+# Property Model
+class Property(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    location = db.Column(db.String(200), nullable=False)
+    image_filename = db.Column(db.String(300), nullable=True)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+    approved = db.Column(db.Boolean, default=False)
+    is_featured = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return f'<Property {self.title}>'
+
+
+# Wishlist Model
+class Wishlist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    property_id = db.Column(db.Integer, db.ForeignKey('property.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<Wishlist User {self.user_id} Property {self.property_id}>'
 
 
 
@@ -341,6 +372,162 @@ def send_otp_email(email, otp):
         mail.send(msg)
     except Exception as e:
         print(f"Error sending email: {e}")
+
+
+
+# OTP Verification route
+@app.route('/verify_otp/<int:id>', methods=['GET', 'POST'])
+def verify_otp(id):
+    user = User.query.get(id)
+
+    if not user:
+        return "User not found!", 404
+
+    if request.method == 'POST':
+        entered_otp = request.form['otp']
+
+        # Check if OTP matches and is within the expiry time (10 minutes)
+        if entered_otp == user.otp:
+            if datetime.now() < user.otp_expiry:  # Check if OTP is not expired
+                user.is_verified = True  # Mark the email as verified
+                db.session.commit()
+                flash('Email successfully verified!', 'success')
+                return redirect(url_for('login'))  # Redirect to login page after successful verification
+            else:
+                flash("OTP has expired!", 'danger')  # OTP expired
+        else:
+            flash("Invalid OTP!", 'danger')  # OTP mismatch
+
+    return render_template('verify_otp.html', id=user.id)
+
+
+
+
+@app.route('/buyer_dashboard')
+def buyer_dashboard():
+    if 'user_id' not in session:
+        flash('Please log in to access the buyer dashboard.', 'warning')
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    return render_template('buyer_dashboard.html', user=user)
+
+
+@app.route('/seller_dashboard')
+def seller_dashboard():
+    if 'user_id' not in session:
+        flash('Please log in to access the seller dashboard.', 'warning')
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    return render_template('seller_dashboard.html', user=user)
+
+
+# Admin Panel Route
+@app.route('/admin/panel')
+def admin_panel():
+    if not session.get('admin_logged_in'):
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+    pending_properties = Property.query.filter_by(approved=False).all()
+    return render_template('admin_panel.html', properties=pending_properties)
+
+
+# View Wishlist Route
+@app.route('/wishlist')
+def view_wishlist():
+    if 'user_id' not in session:
+        flash('Please log in to view your wishlist.', 'warning')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    wishlist_items = Wishlist.query.filter_by(user_id=user_id).all()
+    properties = [Property.query.get(item.property_id) for item in wishlist_items]
+
+    return render_template('wishlist.html', properties=properties)
+
+
+# Add to Wishlist Route
+@app.route('/wishlist/add/<int:property_id>', methods=['POST'])
+def add_to_wishlist(property_id):
+    if 'user_id' not in session:
+        flash('Please log in to add items to your wishlist.', 'warning')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    existing_entry = Wishlist.query.filter_by(user_id=user_id, property_id=property_id).first()
+
+    if existing_entry:
+        flash('This item is already in your wishlist.', 'info')
+    else:
+        new_wishlist_item = Wishlist(user_id=user_id, property_id=property_id)
+        try:
+            db.session.add(new_wishlist_item)
+            db.session.commit()
+            flash('Item added to your wishlist.', 'success')
+        except Exception as e:
+            flash(f'Error adding to wishlist: {str(e)}', 'danger')
+            db.session.rollback()
+
+    return redirect(url_for('auctions'))
+
+
+
+# Remove from Wishlist Route
+@app.route('/wishlist/remove/<int:property_id>', methods=['POST'])
+def remove_from_wishlist(property_id):
+    if 'user_id' not in session:
+        flash('Please log in to manage your wishlist.', 'warning')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    wishlist_item = Wishlist.query.filter_by(user_id=user_id, property_id=property_id).first()
+
+    if wishlist_item:
+        try:
+            db.session.delete(wishlist_item)
+            db.session.commit()
+            flash('Item removed from your wishlist.', 'success')
+        except Exception as e:
+            flash(f'Error removing from wishlist: {str(e)}', 'danger')
+            db.session.rollback()
+    else:
+        flash('Item not found in your wishlist.', 'info')
+
+    return redirect(url_for('view_wishlist'))
+
+
+
+#created an admin
+with app.app_context():
+    def create_admin_user():
+        admin_email = 'admin@example.com'
+        admin_password = 'admin123'  # Replace with a secure password
+        admin_user = User.query.filter_by(email=admin_email).first()
+        if not admin_user:
+            hashed_password = generate_password_hash(admin_password)
+            admin_user = User(
+                full_name='Admin User',
+                username='admin',
+                email=admin_email,
+                password=hashed_password,
+                date_of_birth=datetime(2000, 1, 1),
+                city='Admin City',
+                area='Admin Area',
+                road='Admin Road',
+                
+                is_verified=True,
+                is_admin=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Admin user created: admin@example.com / admin123")
+        else:
+            print("Admin user already exists.")
+
+    # Call the function during app initialization
+    create_admin_user()
+
 
 
 
