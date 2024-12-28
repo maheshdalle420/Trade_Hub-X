@@ -286,6 +286,52 @@ def forgot_password():
 
 
 
+#Update Profile
+
+@app.route('/update_profile', methods=['GET', 'POST'])
+def update_profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        # Get updated data from the form
+        user.full_name = request.form.get('full_name', user.full_name)
+        user.username = request.form.get('username', user.username)
+        user.email = request.form.get('email', user.email)
+
+        # Convert date_of_birth to a datetime.date object if provided
+        date_of_birth_str = request.form.get('date_of_birth')
+        if date_of_birth_str:
+            try:
+                user.date_of_birth = datetime.strptime(date_of_birth_str, '%Y-%m-%d').date()
+            except ValueError:
+                flash('Invalid date format. Please use YYYY-MM-DD.', 'danger')
+                return redirect(url_for('update_profile'))
+
+        user.profession = request.form.get('profession', user.profession)
+        user.city = request.form.get('city', user.city)
+        user.area = request.form.get('area', user.area)
+        user.road = request.form.get('road', user.road)
+
+        # Validate email uniqueness
+        if User.query.filter(User.email == user.email, User.id != user.id).first():
+            flash('This email is already in use.', 'danger')
+            return redirect(url_for('update_profile'))
+
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            flash(f'Error updating profile: {str(e)}', 'danger')
+            db.session.rollback()
+
+    return render_template('update_profile.html', user=user)
+
+
+
 # Send OTP email function
 def send_otp_email(email, otp):
     msg = Message('Your OTP for Email Verification',
