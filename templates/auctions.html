@@ -69,6 +69,30 @@
             transform: scale(1.05);
         }
 
+        .btn-wishlist {
+            background-color: #ffc107;
+            color: #343a40;
+            border: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-wishlist:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+            transform: scale(1.05);
+        }
+
         .badge-featured {
             position: absolute;
             top: 10px;
@@ -91,7 +115,10 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4">Auctions</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="text-center">Auctions</h1>
+            <a href="{{ url_for('buyer_dashboard') }}" class="btn btn-back">&#8592; Back to Buyer Profile</a>
+        </div>
         <p class="text-center text-muted">Discover and participate in exciting auctions!</p>
 
         <!-- Live Auctions -->
@@ -115,6 +142,9 @@
                                     <p><strong>Location:</strong> {{ property.location }}</p>
                                     <p><strong>Time Left:</strong> <span class="time-left" data-end-time="{{ property.end_time.isoformat() }}"></span></p>
                                     <a href="{{ url_for('bidding', property_id=property.id) }}" class="btn btn-primary mt-2">Bid Now</a>
+                                    <form action="{{ url_for('add_to_wishlist', property_id=property.id) }}" method="POST" class="mt-2">
+                                        <button type="submit" class="btn btn-wishlist w-100">Add to Wishlist</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -142,6 +172,9 @@
                                     <p><strong>Price:</strong> ৳{{ property.price }}</p>
                                     <p><strong>Location:</strong> {{ property.location }}</p>
                                     <p><strong>Starts On:</strong> {{ property.start_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                    <form action="{{ url_for('add_to_wishlist', property_id=property.id) }}" method="POST" class="mt-2">
+                                        <button type="submit" class="btn btn-wishlist w-100">Add to Wishlist</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
