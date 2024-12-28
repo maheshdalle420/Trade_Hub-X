@@ -54,67 +54,9 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+    
 
 
-
-# Dashboard route (Protected by login)
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-  
-    user = User.query.get(session['user_id'])
-
-    if not user:
-        flash('User not found. Please log in again.', 'danger')
-        return redirect(url_for('login'))
-
-    return render_template('dashboard.html', user=user)
-
-
-# Unified Login Route
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-
-        # Query the database for the user by email
-        user = User.query.filter_by(email=email).first()
-
-        # Check if user exists and if the password is correct
-        if user and check_password_hash(user.password, password):
-            if not user.is_verified:
-                flash("Please verify your email before logging in.", 'warning')
-                return redirect(url_for('login'))
-
-            session['user_id'] = user.id  # Store user ID in session for login tracking
-
-            # Check if the user is an admin
-            if user.is_admin:
-                session['admin_logged_in'] = True  # Set admin session
-                flash('Welcome Admin!', 'success')
-                return redirect(url_for('admin_panel'))  # Redirect admin to the admin panel
-
-            flash('Login successful.', 'success')
-            return redirect(url_for('dashboard'))  # Redirect to user dashboard
-
-        else:
-            flash('Invalid login credentials!', 'danger')
-
-    return render_template('login.html')
-
-
-
-
-
-#logout
-@app.route('/logout')
-def logout():
-    # Clear the session to log the user out
-    session.clear()
-    flash('You have been logged out successfully.', 'info')
-    return redirect(url_for('login'))
 
 # Registration route
 @app.route('/register', methods=['GET', 'POST'])
@@ -194,16 +136,6 @@ def register():
 
 
 
-
-
-
-
-
-
-
-
-
-
 # Send OTP email function
 def send_otp_email(email, otp):
     msg = Message('Your OTP for Email Verification',
@@ -213,13 +145,3 @@ def send_otp_email(email, otp):
         mail.send(msg)
     except Exception as e:
         print(f"Error sending email: {e}")
-
-
-
-with app.app_context():
-    db.create_all()
-    print("Database tables created successfully.")
-
-# Run the Flask app
-if __name__ == '__main__':
-    app.run(debug=True)

@@ -59,8 +59,6 @@ class User(db.Model):
 
 
 
-
-
 # Unified Login Route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
