@@ -226,7 +226,35 @@ def change_password():
 
 
 
+# Reset password route
+@app.route('/reset_password/<int:id>', methods=['GET', 'POST'])
+def reset_password(id):
+    user = User.query.get(id)
 
+    if not user:
+        return "User not found!", 404
+
+    if request.method == 'POST':
+        entered_otp = request.form['otp']
+        new_password = request.form['new_password']
+        confirm_password = request.form['confirm_password']
+
+        if new_password != confirm_password:
+            flash('Passwords do not match!', 'danger')
+            return redirect(url_for('reset_password', id=id))
+
+        if entered_otp == user.otp and datetime.now() < user.otp_expiry:
+            user.password = generate_password_hash(new_password)
+            user.otp = None
+            user.otp_expiry = None
+            db.session.commit()
+
+            flash('Password reset successfully!', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid or expired OTP!', 'danger')
+
+    return render_template('reset_password.html', id=id)
 
 
 
