@@ -61,14 +61,29 @@ class User(db.Model):
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session:
+        flash('Please log in to view your dashboard.', 'warning')
         return redirect(url_for('login'))
-  
+
     user = User.query.get(session['user_id'])
 
     if not user:
         flash('User not found. Please log in again.', 'danger')
         return redirect(url_for('login'))
 
+    # Calculate the wallet limit dynamically based on user's tier
+    wallet_limit = {
+        'None': 1000,
+        'Bronze': 10000,
+        'Silver': 50000,
+        'Gold': 100000
+    }.get(user.tier, 1000)
+
+    return render_template(
+        'dashboard.html',
+        user=user,
+        wallet_limit=wallet_limit,
+        tier_subscription_cost=tier_subscription_cost
+    )
     return render_template('dashboard.html', user=user)
 
 
