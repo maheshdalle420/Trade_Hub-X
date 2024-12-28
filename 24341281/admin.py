@@ -87,19 +87,32 @@ def admin_panel():
     return render_template('admin_panel.html', properties=pending_properties)
 
 
-# Approve/Reject Auction Route
-@app.route('/admin/approve/<int:id>', methods=['POST'])
-def approve_auction(id):
-    if not session.get('admin_logged_in'):
-        flash('Unauthorized access.', 'danger')
-        return redirect(url_for('login'))
-    property = Property.query.get_or_404(id)
-    action = request.form.get('action')
-    if action == 'approve':
-        property.approved = True
-        flash(f'Property "{property.title}" approved.', 'success')
-    elif action == 'reject':
-        db.session.delete(property)
-        flash(f'Property "{property.title}" rejected and removed.', 'info')
-    db.session.commit()
-    return redirect(url_for('admin_panel'))
+#created an admin
+with app.app_context():
+    def create_admin_user():
+        admin_email = 'admin@example.com'
+        admin_password = 'admin123'  # Replace with a secure password
+        admin_user = User.query.filter_by(email=admin_email).first()
+        if not admin_user:
+            hashed_password = generate_password_hash(admin_password)
+            admin_user = User(
+                full_name='Admin User',
+                username='admin',
+                email=admin_email,
+                password=hashed_password,
+                date_of_birth=datetime(2000, 1, 1),
+                city='Admin City',
+                area='Admin Area',
+                road='Admin Road',
+                
+                is_verified=True,
+                is_admin=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Admin user created: admin@example.com / admin123")
+        else:
+            print("Admin user already exists.")
+
+    # Call the function during app initialization
+    create_admin_user()
