@@ -116,3 +116,40 @@ def reset_password(id):
             flash('Invalid or expired OTP!', 'danger')
 
     return render_template('reset_password.html', id=id)
+
+#Forgot password route
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            flash('No account found with this email.', 'danger')
+            return redirect(url_for('forgot_password'))
+
+        # Generate OTP and expiry
+        otp = str(random.randint(100000, 999999))
+        otp_expiry = datetime.now() + timedelta(minutes=10)
+
+        user.otp = otp
+        user.otp_expiry = otp_expiry
+        db.session.commit()
+
+        # Send OTP email
+        send_otp_email(user.email, otp)
+        flash('An OTP has been sent to your email for password reset.', 'info')
+        return redirect(url_for('reset_password', id=user.id))
+
+    return render_template('forgot_password.html')
+
+
+# Send OTP email function
+def send_otp_email(email, otp):
+    msg = Message('Your OTP for Email Verification',
+                  recipients=[email])
+    msg.body = f'Your OTP is: {otp}. It is valid for 10 minutes.'
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error sending email: {e}")
