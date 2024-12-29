@@ -70,6 +70,14 @@ def dashboard():
         flash('User not found. Please log in again.', 'danger')
         return redirect(url_for('login'))
 
+    # Define the tier subscription cost
+    tier_subscription_cost = {
+        'None': 0,
+        'Bronze': 10,
+        'Silver': 20,
+        'Gold': 30
+    }.get(user.tier, 0)
+
     # Calculate the wallet limit dynamically based on user's tier
     wallet_limit = {
         'None': 1000,
@@ -84,8 +92,6 @@ def dashboard():
         wallet_limit=wallet_limit,
         tier_subscription_cost=tier_subscription_cost
     )
-    return render_template('dashboard.html', user=user)
-
 
 
 

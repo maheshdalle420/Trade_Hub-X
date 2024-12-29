@@ -134,8 +134,6 @@ def register():
 
     return render_template('register.html')
 
-
-
 # Send OTP email function
 def send_otp_email(email, otp):
     msg = Message('Your OTP for Email Verification',
