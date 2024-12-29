@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+Your Account
+{% endblock %}
+
+{% block content %}
+<h1>Your Account</h1>
+<p>Welcome, {{ current_user.username }}!</p>
+<p>Email: {{ current_user.email }}</p>
+<p>Wallet Balance: ${{ current_user.wallet_balance | round(2) }}</p>
+{% if current_user.badge %}
+<p>Badge: {{ current_user.badge | capitalize }}</p>
+{% endif %}
+
+<!-- Add Funds Form -->
+<h3>Add Funds</h3>
+<form action="{{ url_for('main.add_funds') }}" method="POST">
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" step="0.01" required>
+    <button type="submit">Add Funds</button>
+</form>
+
+<!-- Purchase Badge Section -->
+<h3>Purchase a Badge</h3>
+<form action="{{ url_for('main.purchase_badge', badge_type='gold') }}" method="POST">
+    <button type="submit">Purchase Gold Badge ($100)</button>
+</form>
+<form action="{{ url_for('main.purchase_badge', badge_type='silver') }}" method="POST">
+    <button type="submit">Purchase Silver Badge ($50)</button>
+</form>
+<form action="{{ url_for('main.purchase_badge', badge_type='bronze') }}" method="POST">
+    <button type="submit">Purchase Bronze Badge ($25)</button>
+</form>
+{% endblock %}
+

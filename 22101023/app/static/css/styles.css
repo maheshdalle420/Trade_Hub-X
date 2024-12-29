@@ -1,0 +1,250 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #f39c12;
+}
+
+ul {
+    list-style: none;
+}
+
+/* Navbar */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .brand-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f39c12;
+}
+
+.navbar .nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    font-size: 1rem;
+    color: #fff;
+    padding: 5px 10px;
+}
+
+.navbar a:hover {
+    background-color: #f39c12;
+    color: #000;
+}
+
+/* Hero Section with Background Image */
+.hero {
+    background: url('https://source.unsplash.com/1600x700/?house,villa') no-repeat center center/cover;
+    color: #fff;
+    text-align: center;
+    padding: 150px 20px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.hero .btn {
+    display: inline-block;
+    background-color: #f39c12;
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+}
+
+.hero .btn:hover {
+    background-color: #e67e22;
+}
+
+/* Centered Container */
+.container {
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Flash Messages */
+.alert {
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.alert.success {
+    background-color: #27ae60;
+}
+
+.alert.error {
+    background-color: #e74c3c;
+}
+
+.alert.info {
+    background-color: #3498db;
+}
+
+/* Footer */
+.footer {
+    background-color: #2c3e50;
+    color: #fff;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 30px;
+}
+
+.footer a {
+    color: #f39c12;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Common Section with Background Image */
+.section-bg {
+    background: url('https://source.unsplash.com/1600x900/?home,architecture') no-repeat center center/cover;
+    padding: 100px 20px;
+    color: #fff;
+    text-align: center;
+}
+
+.section-bg h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.section-bg p {
+    font-size: 1.2rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+/* Hero Section */
+.hero {
+    background-size: cover;
+    background-position: center;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.hero-overlay {
+    background: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-content {
+    color: #fff;
+    text-align: center;
+    z-index: 10;
+}
+
+.hero-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #f39c12;
+    color: #fff;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #e67e22;
+    color: #fff;
+}
+
+/* Main Content */
+.main-content {
+    padding: 50px 20px;
+    text-align: center;
+}
+
+/* Footer */
+.footer {
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer-links a {
+    color: #f39c12;
+    margin: 0 10px;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
