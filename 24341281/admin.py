@@ -83,8 +83,57 @@ def admin_panel():
     if not session.get('admin_logged_in'):
         flash('Unauthorized access.', 'danger')
         return redirect(url_for('login'))
+
     pending_properties = Property.query.filter_by(approved=False).all()
-    return render_template('admin_panel.html', properties=pending_properties)
+    active_auctions = Property.query.filter(
+        Property.approved == True,
+        Property.start_time <= datetime.now(),
+        Property.end_time > datetime.now()
+    ).all()
+
+    auction_details = []
+    for auction in active_auctions:
+        current_bid = Bid.query.filter_by(property_id=auction.id).order_by(Bid.bid_amount.desc()).first()
+
+        # Count unique users, excluding auto-bidding increments
+        active_users = Bid.query.filter(
+            Bid.property_id == auction.id,
+            Bid.auto_increment.is_(None)
+        ).distinct(Bid.user_id).count()
+
+        auction_details.append({
+            'auction': auction,
+            'current_bid': current_bid.bid_amount if current_bid else 'No bids',
+            'active_users': active_users
+        })
+
+    users = User.query.all()
+
+    return render_template('admin_panel.html', properties=pending_properties, auction_details=auction_details, users=users)
+
+# Manage Users (Ban/Delete)
+@app.route('/admin/manage_users', methods=['POST'])
+def manage_users():
+    if not session.get('admin_logged_in'):
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('login'))
+
+    action = request.form.get('action')
+    user_id = request.form.get('user_id')
+    user = User.query.get_or_404(user_id)
+
+    if action == 'ban':
+        ban_duration = int(request.form.get('ban_duration', 0))
+        user.banned_until = datetime.now() + timedelta(hours=ban_duration)
+        db.session.commit()
+        flash(f'User {user.username} has been banned for {ban_duration} hours.', 'success')
+    elif action == 'delete':
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'User {user.username} has been deleted.', 'success')
+
+    return redirect(url_for('admin_panel'))
+
 
 
 #created an admin
